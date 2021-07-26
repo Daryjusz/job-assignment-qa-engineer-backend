@@ -1,0 +1,414 @@
+ID: 1
+Summary: Register new user
+Description:
+Preconditions:
+Steps:
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "test",
+    "email": "test@test.com",
+    "password": "test"
+  }
+}
+
+
+Expected Result: New user registered / status code 200
+Status: Pass
+Actual result: -
+
+
+ID: 2
+Summary: Create new user with already used username/email
+Description:
+Preconditions:
+Steps:
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "test",
+    "email": "test@test.com",
+    "password": "test"
+  }
+}
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "test",
+    "email": "test@test.com",
+    "password": "test"
+  }
+}
+
+
+Expected Result:
+Second user is not created, 409 code in response,
+“has already been taken” messages for username/email in response body
+
+Status: Pass
+Actual result: -
+
+ID: 3
+Summary: Create new user with empty username
+Description:
+Preconditions:
+Steps:
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "",
+    "email": "test@test.com",
+    "password": "test"
+  }
+}
+Expected Result: User is not created, 422 code in response, proper message in response body
+Status: Pass
+Actual result: -
+
+
+ID: 4
+Summary: Create new user with invalid email format
+Description:
+Preconditions:
+Steps:
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "test",
+    "email": "test.com",
+    "password": "test"
+  }
+}
+Expected Result: User is not created, 422 code in response, proper message in response body
+Status: Pass
+Actual result: -
+
+ID: 5
+Summary: Create new user without password
+Description:
+Preconditions:
+Steps:
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "test",
+    "email": "test.com",
+    "password": ""
+  }
+}
+Expected Result: User is not created, 422 code in response, proper message in response body
+Status: Pass
+Actual result: -
+
+ID: 6
+Summary: Create new user without password
+Description:
+Preconditions:
+Steps:
+Send POST to /api/users with body:
+{
+  "user":{
+    "username": "test",
+    "email": "test.com",
+    "password": ""
+  }
+}
+Expected Result: User is not created, 422 code in response, proper message in response body
+Status: Pass
+Actual result: -
+
+ID: 7
+Summary: Authenticate
+Description:
+Preconditions:Created user
+Steps:
+Send POST to /api/users/login with body:
+{
+  "user":{
+    "email": -registered mail-,
+    "password": -password assigned do used mail-
+  }
+}
+Expected Result: Authenticate success, 200 code, correct data in response body with token.
+Status: Pass
+Actual result: -
+
+ID: 8
+Summary: Authenticate with invalid password
+Description:
+Preconditions:Created user
+Steps:
+Send POST to /api/users/login with body:
+{
+  "user":{
+    "email": -registered mail-,
+    "password": -invalid password-
+  }
+}
+Expected Result: Authenticate failure, 422 code, proper message in response
+Status: Pass
+Actual result: -
+
+ID: 9
+Summary: Get current user
+Description:
+Preconditions: Authenticated / token in header
+Steps:
+Send GET to /api/user
+
+Expected Result: 200 code, proper authenticated user information response body
+Status: Pass
+Actual result: -
+
+ID: 10
+Summary: Get current user with invalid token
+Description:
+Preconditions:
+Steps:
+Send GET to /api/user with invalid header:
+    Authenticate : Token invalid
+
+Expected Result: 401 code
+Status: Pass
+Actual result: -
+
+
+
+
+ID: 11
+Summary: Get current user without authorization header
+Description:
+Preconditions:
+Steps:
+Send GET to /api/user without Authorization header
+
+Expected Result: 401 code
+Status: Pass
+Actual result: -
+
+ID: 12
+Summary: Update user data
+Description:
+Preconditions: Authenticated user
+Steps:
+Send PUT to /api/user with body:
+{
+  "user":{
+    "email": -authenticated user email-,
+    "bio": "updated",
+    "image": "updated"
+  }
+}
+
+
+Expected Result: 200 code, updated user information in response body
+Status: Pass
+Actual result: -
+
+ID: 13
+Summary: Update user data with empty email and password
+Description:
+Preconditions: Authenticated user
+Steps:
+Send PUT to /api/user with body:
+{
+  "user":{
+    "email": "",
+    "bio": "updated",
+    "image": "",
+    "password": ""
+  }
+}
+
+
+Expected Result: 422 code, proper information about invalid password and email should be in response body
+Status: Pass
+Actual result: -
+
+ID: 14
+Summary: Get profile as not authenticated user
+Description:
+Preconditions: Existing profile
+Steps:
+Send GET /api/profiles/-username-
+Expected Result: 200 code, proper profile information should be in response body
+{
+  "profile": {
+    "username": "",
+    "bio": "",
+    "image": "",
+    "following": false
+  }
+}
+
+Status: Pass
+Actual result: -
+
+ID: 15
+Summary: Follow user
+Description:
+Preconditions: Authenticated user, existing not followed profile
+Steps:
+Send POST /api/profiles/-username-/follow
+Expected Result: 200 code, proper profile information with field following : true should be in response body
+Status: Pass
+Actual result: -
+
+ID: 16
+Summary: Unfollow user
+Description:
+Preconditions: Authenticated user, existing followed profile
+Steps:
+Send DELETE /api/profiles/-username-/follow
+Expected Result: 200 code, proper profile information with field following : false should be in response body
+Status: Pass
+Actual result: -
+
+
+
+
+ID: 17
+Summary: Get list of articles
+Description:
+Preconditions: Some amount of articles
+Steps:
+Send GET /api/articles
+Expected Result: 200 code, list of articles returned, ordered by most recent
+Status: Pass
+Actual result: -
+
+ID: 18
+Summary: Get single articles
+Description:
+Preconditions: Existing article
+Steps:
+Send GET /api/articles/-slug-
+Expected Result: 200 code, article returned
+Status: Pass
+Actual result: -
+
+ID: 19
+Summary: Create article
+Description:
+Preconditions: Authenticated user
+Steps:
+Send POST /api/articles with body:
+{
+  "article": {
+    "title": "test",
+    "description": "test",
+    "body": "test"
+  }
+}
+Expected Result: 201 code, article created
+Status: Pass
+Actual result: -
+
+
+
+ID: 20
+Summary: Update article
+Description:
+Preconditions: Authenticated user, created article
+Steps:
+Send POST /api/articles/-slug- with body:
+{
+  "article": {
+    "description": "test"
+  }
+}
+Expected Result: 201 code, article created
+Status: Pass
+Actual result: -
+
+ID: 21
+Summary: Delete article
+Description:
+Preconditions: Authenticated user, created article
+Steps:
+Send DELETE /api/articles/-slug-
+Send GET /api/articles/-slug-
+
+Expected Result: article deleted, 204 code in delete response, 404 in get response, not found message in get response body
+Status: Pass
+Actual result: -
+
+ID: 22
+Summary: Add comment to article
+Description:
+Preconditions: Authenticated user, created article
+Steps:
+Send POST /api/articles/:slug/comments
+{"comment": {
+    "body": "comment test"
+  }}
+
+Expected Result: comment created, 200 code
+Status: Pass
+Actual result: -
+
+
+ID: 23
+Summary: Get comments from article
+Description:
+Preconditions: Authenticated user, created article with comments
+Steps:
+Send GET /api/articles/-slug-/comments
+Expected Result: list of comments for picked article, 200 code
+Status: Pass
+Actual result: -
+
+
+ID: 23
+Summary: Get comments from article
+Description:
+Preconditions: Authenticated user, created article with comments
+Steps:
+Send DELETE /api/articles/-slug-/comments/-id-
+Expected Result: comment is deleted, 204 code
+Status: Pass
+Actual result: -
+
+
+ID: 24
+Summary: Favorite article
+Description:
+Preconditions: Authenticated user, created article(not favorited)
+Steps:
+
+Send POST /api/articles/-slug-/favorite
+Expected Result: article is favorited, in response value favorited=true, 200 code
+Status: Pass
+Actual result: -
+
+
+
+
+ID: 25
+Summary: Unfavorite article
+Description:
+Preconditions: Authenticated user, created favorited article
+Steps:
+
+Send DELETE /api/articles/-slug-/favorite
+Expected Result: article is unfavorited, in response value favorited=false, 200 code
+Status: Pass
+Actual result: -
+
+ID: 26
+Summary: Get tags
+Description:
+Preconditions: -
+Steps:
+
+Send GET /api/tags
+Expected Result: list of tags is returned, 200 code
+Status: Pass
+Actual result: -
+
+
+* As a good practice, before and after each object modification(create, update, delete) there should executed GET
+* Data should be also checked in db in some cases, there is scenario(it was skipped in the test cases ids) where after creating article it is not displayed on the list of all articles, it would be good to check in db if this article was or get scenario by slug
+* For each input we can create scenarios for valid/invalid data, empty/null values, exceed size
+* tests for required fields
+* tests with filter parameters for articles/feed articles
